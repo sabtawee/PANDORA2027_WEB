@@ -12,6 +12,9 @@ export async function SiteHeader() {
           PANDORA<span className="text-muted">·RO</span>
         </Link>
         <div className="flex items-center gap-3">
+          <Link href="/leaderboard" className="hidden text-sm text-muted hover:text-text sm:inline">
+            {t("leaderboard")}
+          </Link>
           <LocaleSwitcher />
           <Link href="/dashboard" className="btn-ghost whitespace-nowrap px-3 text-sm sm:px-5">
             {t("dashboard")}

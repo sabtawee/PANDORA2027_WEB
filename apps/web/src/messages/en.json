@@ -11,7 +11,8 @@
     "dashboard": "My Box",
     "login": "Sign in",
     "logout": "Sign out",
-    "language": "Language"
+    "language": "Language",
+    "leaderboard": "Leaderboard"
   },
   "hero": {
     "eyebrow": "Ragnarok Classic · Episode 1.0 - 4.0 · Low Rate",
@@ -55,7 +56,14 @@
     "referralLink": "Your invite link",
     "linkedAccounts": "Linked accounts",
     "linkDiscord": "Link Discord",
-    "linked": "Linked"
+    "linked": "Linked",
+    "history": "Point history",
+    "reason": {
+      "SIGNUP": "Registered",
+      "DISCORD_JOIN": "Joined Discord",
+      "REFERRAL": "Friend joined",
+      "ADMIN_ADJUST": "Adjusted by staff"
+    }
   },
   "footer": {
     "disclaimer": "PANDORA-RO is an independent server and is not affiliated with Gravity Co., Ltd.",
@@ -88,5 +96,39 @@
     "text": "We use essential cookies to run the site, and ask permission for analytics/ads cookies to improve our campaigns.",
     "accept": "Accept all",
     "necessary": "Essential only"
+  },
+  "tiers": {
+    "toNext": "{points, number} more points to reach {tier}",
+    "top": "You're at the top tier ✦"
+  },
+  "og": {
+    "eyebrow": "RAGNAROK CLASSIC · EP 1.0-4.0 · LOW RATE",
+    "siteTitle": "Open Pandora's Box",
+    "siteSubtitle": "Pre-register, earn points, claim rewards on launch day",
+    "inviteTitle": "A friend invited you to open Pandora's Box",
+    "inviteTitleNamed": "{name} invited you to open Pandora's Box",
+    "inviteSubtitle": "Register free with Google or Discord. Earn points and launch-day rewards.",
+    "daysLeft": "{days, number} days to launch",
+    "comingSoon": "Coming soon"
+  },
+  "invite": {
+    "title": "A friend invited you to open Pandora's Box",
+    "titleNamed": "{name} invited you to open Pandora's Box",
+    "subtitle": "A low rate Ragnarok Classic server (Episode 1.0-4.0) is launching soon. Pre-register today.",
+    "perk1": "Points the moment you register",
+    "perk2": "More players, more broken chains, more rewards for everyone",
+    "perk3": "Rewards delivered in-game on launch day",
+    "cta": "Pre-register now"
+  },
+  "leaderboard": {
+    "title": "Top Inviters",
+    "subtitle": "Counts friends who registered through your link and joined our Discord",
+    "weekly": "This week",
+    "weeklyHint": "Resets every Monday 00:00 (Thailand time)",
+    "allTime": "All time",
+    "allTimeHint": "Since pre-registration opened",
+    "friends": "{count, number} {count, plural, one {friend} other {friends}}",
+    "empty": "No one on the board yet — be the first",
+    "cta": "Get my invite link"
   }
 }

@@ -49,6 +49,14 @@ const milestones = [1000, 3000, 5000, 10000, 20000].map((target, i) => ({
   items: [],
 }));
 
+// Thresholds fit phase-1 quests: signup 100 + Discord 50, then +100 per qualified friend.
+const tiers = [
+  { key: "bronze", minPoints: 100, title: { th: "บรอนซ์", en: "Bronze" } },
+  { key: "silver", minPoints: 250, title: { th: "ซิลเวอร์", en: "Silver" } },
+  { key: "gold", minPoints: 650, title: { th: "โกลด์", en: "Gold" } },
+  { key: "pandora", minPoints: 1150, title: { th: "แพนโดร่า", en: "Pandora" } },
+].map((t, i) => ({ ...t, sortOrder: i + 1, items: [] }));
+
 const settings: Record<string, unknown> = {
   "site.launch": { cbtAt: null, obtAt: "2027-02-14T12:00:00+07:00" },
   "site.links": { discord: "", facebook: "", tiktok: "", youtube: "" },
@@ -71,6 +79,9 @@ async function main() {
   }
   for (const m of milestones) {
     await prisma.milestone.upsert({ where: { target: m.target }, update: {}, create: m });
+  }
+  for (const t of tiers) {
+    await prisma.rewardTier.upsert({ where: { key: t.key }, update: {}, create: t });
   }
   for (const [key, value] of Object.entries(settings)) {
     await prisma.setting.upsert({

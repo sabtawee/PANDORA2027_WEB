@@ -8,6 +8,8 @@ export const SETTING_DEFAULTS = {
   "site.maintenance": false,
   /** Public pixel / measurement IDs (not secrets). The CAPI token lives in env. */
   tracking: { metaPixelId: "", ga4Id: "", tiktokPixelId: "" },
+  /** Prize text shown on the referral leaderboard page */
+  leaderboard: { prizeTh: "", prizeEn: "" },
   "modules.enabled": {
     preregister: true,
     quests: true,

@@ -31,6 +31,8 @@ const schema = z.object({
   tiktokPixelId: pixelId,
   maintenance: z.boolean(),
   modules: z.record(z.string(), z.boolean()),
+  prizeTh: z.string().trim().max(300),
+  prizeEn: z.string().trim().max(300),
 });
 
 export async function saveSettings(formData: FormData) {
@@ -50,6 +52,8 @@ export async function saveSettings(formData: FormData) {
     tiktokPixelId: s("tiktokPixelId"),
     maintenance: formData.get("maintenance") === "on",
     modules: Object.fromEntries(moduleKeys.map((k) => [k, formData.get(`module.${k}`) === "on"])),
+    prizeTh: s("prizeTh"),
+    prizeEn: s("prizeEn"),
   });
 
   const values: Partial<Record<SettingKey, unknown>> = {
@@ -58,6 +62,7 @@ export async function saveSettings(formData: FormData) {
     tracking: { metaPixelId: parsed.metaPixelId, ga4Id: parsed.ga4Id, tiktokPixelId: parsed.tiktokPixelId },
     "site.maintenance": parsed.maintenance,
     "modules.enabled": parsed.modules,
+    leaderboard: { prizeTh: parsed.prizeTh, prizeEn: parsed.prizeEn },
   };
 
   await prisma.$transaction(

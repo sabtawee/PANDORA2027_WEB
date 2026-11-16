@@ -17,7 +17,8 @@ export default function proxy(request: NextRequest) {
   const cookieOpts = { maxAge: ATTRIBUTION_MAX_AGE, httpOnly: true, sameSite: "lax" as const, path: "/" };
 
   // First touch wins: never overwrite an existing invite or ad click.
-  const ref = url.searchParams.get("ref")?.toUpperCase();
+  // Invite links look like /th/i/CODE; ?ref=CODE on any page also works.
+  const ref = (url.pathname.match(/^\/[a-z]{2}\/i\/([A-Za-z0-9]{6,12})\/?$/)?.[1] ?? url.searchParams.get("ref"))?.toUpperCase();
   if (ref && REF_CODE_RE.test(ref) && !request.cookies.has(REF_COOKIE)) {
     response.cookies.set(REF_COOKIE, ref, cookieOpts);
   }

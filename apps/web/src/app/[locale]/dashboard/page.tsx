@@ -9,8 +9,10 @@ import { buildMetadata, localeUrl } from "@/core/seo";
 import { getSetting } from "@/core/settings";
 import { RegistrationPixel } from "@/modules/tracking/RegistrationPixel";
 import { VerifyDiscordButton } from "@/modules/discord/VerifyDiscordButton";
-import { getBalance } from "@/modules/points/service";
+import { getBalance, getHistory, getLifetimeEarned } from "@/modules/points/service";
+import { getActiveTiers, resolveTier, TIER_COLORS } from "@/modules/rewards/tiers";
 import { getUserQuests } from "@/modules/quests/service";
+import { invitePath } from "@/modules/referral/invite";
 import { getReferralStats } from "@/modules/referral/service";
 import { ShareButtons } from "@/modules/share/ShareButtons";
 import { isFreshSignup } from "@/modules/tracking/conversion";
@@ -29,12 +31,16 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/das
   if (!session?.user) return redirect({ href: "/login", locale });
 
   const userId = session.user.id;
-  const [t, tn, tq, ts, balance, accounts, quests, referrals, links, user] = await Promise.all([
+  const [t, tn, tq, ts, tt, balance, lifetime, history, tiers, accounts, quests, referrals, links, user] = await Promise.all([
     getTranslations("dashboard"),
     getTranslations("nav"),
     getTranslations("quests"),
     getTranslations("share"),
+    getTranslations("tiers"),
     getBalance(userId),
+    getLifetimeEarned(userId),
+    getHistory(userId),
+    getActiveTiers(),
     prisma.account.findMany({ where: { userId }, select: { provider: true } }),
     getUserQuests(userId),
     getReferralStats(userId),
@@ -42,8 +48,14 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/das
     prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { createdAt: true } }),
   ]);
   const providers = new Set(accounts.map((a) => a.provider));
-  const inviteUrl = `${localeUrl(locale)}?ref=${session.user.referralCode}`;
+  // /i/CODE carries a personal OG card, so the share preview shows the inviter's name and tier
+  const inviteUrl = localeUrl(locale, invitePath(session.user.referralCode));
   const isNewUser = isFreshSignup(user.createdAt);
+  const tier = resolveTier(lifetime, tiers);
+  const reasonLabel = (reason: string) =>
+    (["SIGNUP", "DISCORD_JOIN", "REFERRAL", "ADMIN_ADJUST"] as const).includes(reason as never)
+      ? t(`reason.${reason as "SIGNUP"}`)
+      : reason;
 
   return (
     <section className="mx-auto max-w-3xl px-4 py-12">
@@ -54,8 +66,32 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/das
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         <div className="panel p-6">
-          <p className="text-sm text-muted">{t("balance")}</p>
-          <p className="mt-2 font-display text-5xl tabular-nums text-gilded">{balance.toLocaleString()}</p>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm text-muted">{t("balance")}</p>
+              <p className="mt-2 font-display text-5xl tabular-nums text-gilded">{balance.toLocaleString()}</p>
+            </div>
+            {tier.current && (
+              <span
+                className="rounded-full border px-3 py-1 text-sm font-medium"
+                style={{ color: TIER_COLORS[tier.current.key] ?? "var(--gold)", borderColor: "currentColor" }}
+              >
+                {pickLocale(tier.current.title, locale)}
+              </span>
+            )}
+          </div>
+          {tier.next ? (
+            <div className="mt-4">
+              <div className="h-2 overflow-hidden rounded-full bg-bg-sunken">
+                <div className="h-full rounded-full bg-gradient-to-r from-arcane to-gold" style={{ width: `${tier.percent}%` }} />
+              </div>
+              <p className="mt-2 text-xs text-faint">
+                {tt("toNext", { points: tier.next.minPoints - lifetime, tier: pickLocale(tier.next.title, locale) })}
+              </p>
+            </div>
+          ) : (
+            tier.current && <p className="mt-4 text-xs text-gold">{tt("top")}</p>
+          )}
         </div>
 
         <div className="panel p-6">
@@ -123,6 +159,33 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/das
         <p className="mt-1 mb-4 text-sm text-muted">{ts("hint")}</p>
         <ShareButtons url={inviteUrl} text={ts("message")} />
       </div>
+
+      {/* ───── Point history ───── */}
+      {history.length > 0 && (
+        <div className="panel mt-4 p-6">
+          <h2 className="font-medium">{t("history")}</h2>
+          <ul className="mt-3 divide-y divide-line text-sm">
+            {history.map((h) => (
+              <li key={h.id} className="flex items-center justify-between gap-3 py-2">
+                <div>
+                  <p>{reasonLabel(h.reason)}</p>
+                  <p className="text-xs text-faint">
+                    {h.createdAt.toLocaleString(locale === "th" ? "th-TH" : "en-GB", {
+                      timeZone: "Asia/Bangkok",
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
+                  </p>
+                </div>
+                <span className={`tabular-nums ${h.amount >= 0 ? "text-success" : "text-ember"}`}>
+                  {h.amount >= 0 ? "+" : ""}
+                  {h.amount.toLocaleString()}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <form
         className="mt-8"

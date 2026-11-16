@@ -6,21 +6,9 @@ import { z } from "zod";
 import { audit } from "@/core/audit";
 import { prisma } from "@/core/db/prisma";
 import { requireRole } from "@/core/rbac";
+import { parseItemLines } from "@/modules/rewards/items";
 
-/** "501:10" per line → [{ itemId: 501, amount: 10 }] */
-const items = z
-  .string()
-  .transform((text) =>
-    text
-      .split(/\r?\n/)
-      .map((l) => l.trim())
-      .filter(Boolean)
-      .map((l) => {
-        const m = l.match(/^(\d{1,7})\s*[:x×]\s*(\d{1,5})$/i);
-        if (!m) throw new Error(`รูปแบบไอเทมไม่ถูกต้อง: "${l}" (ใช้ itemId:จำนวน)`);
-        return { itemId: Number(m[1]), amount: Number(m[2]) };
-      }),
-  );
+const items = z.string().transform(parseItemLines);
 
 const schema = z.object({
   id: z.string().optional(),

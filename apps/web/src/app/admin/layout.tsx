@@ -16,6 +16,7 @@ const NAV = [
   { href: "/admin/settings", label: "ตั้งค่าเว็บ" },
   { href: "/admin/quests", label: "ภารกิจ / แต้ม" },
   { href: "/admin/milestones", label: "Milestones" },
+  { href: "/admin/tiers", label: "Reward Tiers" },
 ];
 
 export default async function AdminLayout({ children }: LayoutProps<"/admin">) {

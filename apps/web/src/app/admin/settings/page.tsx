@@ -22,13 +22,14 @@ const MODULE_LABELS: Record<string, string> = {
 
 export default async function SettingsPage({ searchParams }: PageProps<"/admin/settings">) {
   await requireRole("ADMIN");
-  const [{ ok }, launch, links, tracking, maintenance, modules] = await Promise.all([
+  const [{ ok }, launch, links, tracking, maintenance, modules, leaderboard] = await Promise.all([
     searchParams,
     getSetting("site.launch"),
     getSetting("site.links"),
     getSetting("tracking"),
     getSetting("site.maintenance"),
     getSetting("modules.enabled"),
+    getSetting("leaderboard"),
   ]);
   const mods = { ...SETTING_DEFAULTS["modules.enabled"], ...modules };
 
@@ -72,6 +73,17 @@ export default async function SettingsPage({ searchParams }: PageProps<"/admin/s
             </Field>
             <Field label="TikTok Pixel ID">
               <input name="tiktokPixelId" defaultValue={tracking.tiktokPixelId} className={inputCls} />
+            </Field>
+          </div>
+        </Card>
+
+        <Card title="ของรางวัล Leaderboard">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="ข้อความรางวัล (ไทย)" hint="แสดงบนหน้าอันดับ — ว่าง = ไม่แสดง">
+              <input name="prizeTh" defaultValue={leaderboard.prizeTh} className={inputCls} />
+            </Field>
+            <Field label="ข้อความรางวัล (English)">
+              <input name="prizeEn" defaultValue={leaderboard.prizeEn} className={inputCls} />
             </Field>
           </div>
         </Card>

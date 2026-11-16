@@ -29,3 +29,21 @@ export async function getBalance(userId: string): Promise<number> {
   const { _sum } = await prisma.pointLedger.aggregate({ where: { userId }, _sum: { amount: true } });
   return _sum.amount ?? 0;
 }
+
+/** Points ever earned (ignores spending). Tiers use this so redeeming never drops a tier. */
+export async function getLifetimeEarned(userId: string): Promise<number> {
+  const { _sum } = await prisma.pointLedger.aggregate({
+    where: { userId, amount: { gt: 0 } },
+    _sum: { amount: true },
+  });
+  return _sum.amount ?? 0;
+}
+
+export async function getHistory(userId: string, take = 20) {
+  return prisma.pointLedger.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    take,
+    select: { id: true, amount: true, reason: true, note: true, createdAt: true },
+  });
+}
