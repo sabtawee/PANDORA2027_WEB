@@ -1,0 +1,387 @@
+// PANDORA-RO web database (pandora_web).
+// This schema never touches the rAthena game DB — that is the sync agent's job.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ───────────────────────────── Auth (Auth.js) ─────────────────────────────
+
+enum Role {
+  USER
+  EDITOR
+  GM
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  BANNED
+}
+
+model User {
+  id            String     @id @default(cuid())
+  name          String?
+  email         String?    @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role       @default(USER)
+  status        UserStatus @default(ACTIVE)
+  locale        String     @default("th") @db.VarChar(5)
+  /// Public code used in the user's share link (?ref=CODE)
+  referralCode  String     @unique @db.VarChar(12)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  accounts       Account[]
+  sessions       Session[]
+  pointLedger    PointLedger[]
+  quests         QuestProgress[]
+  invitedBy      Referral?        @relation("invitee")
+  invites        Referral[]       @relation("inviter")
+  attribution    Attribution?
+  rewardClaims   RewardClaim[]
+  gameAccounts   GameAccountLink[]
+  auditLogs      AuditLog[]
+  signupFingerprint String?        @db.VarChar(64)
+  signupIp          String?        @db.VarChar(45)
+
+  @@index([createdAt])
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?  @db.Text
+  access_token      String?  @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?  @db.Text
+  id_token          String?  @db.Text
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ───────────────────────────── Points ─────────────────────────────
+
+/// Every point change is one row. Balance = SUM(amount). Never update in place.
+model PointLedger {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Int
+  /// e.g. SIGNUP, DISCORD_JOIN, REFERRAL_QUALIFIED, ADMIN_ADJUST
+  reason    String   @db.VarChar(40)
+  /// What produced it (questId, referralId, admin user id …)
+  refId     String?  @db.VarChar(64)
+  note      String?  @db.VarChar(255)
+  /// Guarantees the same event never pays twice
+  dedupeKey String   @unique @db.VarChar(128)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+// ───────────────────────────── Quests ─────────────────────────────
+
+enum QuestType {
+  SIGNUP
+  DISCORD_JOIN
+  REFERRAL
+  DAILY_CHECKIN
+  QUIZ
+  INGAME_LEVEL
+}
+
+enum QuestStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+model Quest {
+  id          String    @id @default(cuid())
+  key         String    @unique @db.VarChar(40)
+  type        QuestType
+  /// { th, en }
+  title       Json
+  description Json?
+  points      Int
+  /// Type-specific settings (e.g. max referrals, quiz answers)
+  config      Json?
+  /// 0 = unlimited
+  maxPerUser  Int       @default(1)
+  isActive    Boolean   @default(true)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  progress QuestProgress[]
+}
+
+model QuestProgress {
+  id          String      @id @default(cuid())
+  userId      String
+  questId     String
+  status      QuestStatus @default(IN_PROGRESS)
+  count       Int         @default(0)
+  completedAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quest Quest @relation(fields: [questId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questId])
+}
+
+// ───────────────────────────── Referral ─────────────────────────────
+
+enum ReferralStatus {
+  PENDING
+  QUALIFIED
+  REJECTED
+}
+
+model Referral {
+  id          String         @id @default(cuid())
+  inviterId   String
+  inviteeId   String         @unique
+  status      ReferralStatus @default(PENDING)
+  qualifiedAt DateTime?
+  createdAt   DateTime       @default(now())
+
+  inviter User @relation("inviter", fields: [inviterId], references: [id], onDelete: Cascade)
+  invitee User @relation("invitee", fields: [inviteeId], references: [id], onDelete: Cascade)
+
+  @@index([inviterId, status])
+}
+
+// ───────────────────────────── Marketing attribution ─────────────────────────────
+
+/// First-touch attribution captured from the landing URL.
+model Attribution {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  utmSource   String?  @db.VarChar(100)
+  utmMedium   String?  @db.VarChar(100)
+  utmCampaign String?  @db.VarChar(150)
+  utmContent  String?  @db.VarChar(150)
+  utmTerm     String?  @db.VarChar(150)
+  fbclid      String?  @db.VarChar(255)
+  gclid       String?  @db.VarChar(255)
+  ttclid      String?  @db.VarChar(255)
+  landingPath String?  @db.VarChar(255)
+  referrer    String?  @db.VarChar(255)
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([utmCampaign])
+}
+
+// ───────────────────────────── Rewards ─────────────────────────────
+
+/// Server-wide pre-register goal (one chain on the Pandora box).
+model Milestone {
+  id          String   @id @default(cuid())
+  target      Int      @unique
+  title       Json
+  description Json?
+  image       String?
+  /// [{ itemId, amount }]
+  items       Json
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+/// Personal tier unlocked by lifetime points.
+model RewardTier {
+  id          String   @id @default(cuid())
+  key         String   @unique @db.VarChar(30)
+  title       Json
+  minPoints   Int
+  image       String?
+  items       Json
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum RewardSource {
+  MILESTONE
+  TIER
+}
+
+enum ClaimStatus {
+  REQUESTED
+  QUEUED
+  DELIVERED
+  FAILED
+}
+
+model RewardClaim {
+  id            String       @id @default(cuid())
+  userId        String
+  source        RewardSource
+  sourceId      String
+  gameAccountId String?
+  charId        Int?
+  status        ClaimStatus  @default(REQUESTED)
+  syncJobId     String?
+  deliveredAt   DateTime?
+  createdAt     DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// One claim per reward per web account
+  @@unique([userId, source, sourceId])
+}
+
+/// Mirror of rAthena item_db for the admin item picker.
+model ItemCatalog {
+  id      Int     @id
+  aegis   String  @db.VarChar(64)
+  name    String  @db.VarChar(100)
+  nameTh  String? @db.VarChar(100)
+  type    String? @db.VarChar(30)
+  icon    String?
+}
+
+// ───────────────────────────── Game account link ─────────────────────────────
+
+model GameAccountLink {
+  id               String   @id @default(cuid())
+  userId           String
+  username         String   @unique @db.VarChar(23)
+  /// rAthena login.account_id, filled once the agent creates it
+  rathenaAccountId Int?     @unique
+  createdAt        DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ───────────────────────────── Sync (outbox) ─────────────────────────────
+
+enum SyncJobType {
+  CREATE_GAME_ACCOUNT
+  CHANGE_PASSWORD
+  DELIVER_REWARD
+  BAN
+  UNBAN
+}
+
+enum SyncJobStatus {
+  PENDING
+  PROCESSING
+  DONE
+  FAILED
+}
+
+model SyncJob {
+  id             String        @id @default(cuid())
+  type           SyncJobType
+  status         SyncJobStatus @default(PENDING)
+  idempotencyKey String        @unique @db.VarChar(128)
+  payload        Json
+  result         Json?
+  attempts       Int           @default(0)
+  lastError      String?       @db.Text
+  lockedAt       DateTime?
+  nextRunAt      DateTime      @default(now())
+  doneAt         DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([status, nextRunAt])
+}
+
+// ───────────────────────────── Content & settings ─────────────────────────────
+
+enum NewsCategory {
+  NEWS
+  PATCH
+  GUIDE
+  EVENT
+}
+
+model NewsPost {
+  id          String       @id @default(cuid())
+  slug        String       @unique @db.VarChar(160)
+  category    NewsCategory @default(NEWS)
+  title       Json
+  excerpt     Json?
+  content     Json
+  coverImage  String?
+  seoTitle    Json?
+  seoDesc     Json?
+  isPublished Boolean      @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([isPublished, publishedAt])
+}
+
+/// Key/value site settings edited from admin (countdown, feature flags, links, point rules …)
+model Setting {
+  key       String   @id @db.VarChar(80)
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  action    String   @db.VarChar(80)
+  target    String?  @db.VarChar(120)
+  data      Json?
+  ip        String?  @db.VarChar(45)
+  createdAt DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+}

@@ -1,0 +1,67 @@
+{
+  "meta": {
+    "siteName": "PANDORA-RO",
+    "title": "PANDORA-RO 1.0-4.0 | New Low Rate Ragnarok Classic Server",
+    "description": "A low rate Ragnarok Classic server, Episode 1.0-4.0. Pre-register now, earn points, break the chains of Pandora's Box and claim rewards on launch day."
+  },
+  "nav": {
+    "home": "Home",
+    "news": "News",
+    "roadmap": "Roadmap",
+    "dashboard": "My Box",
+    "login": "Sign in",
+    "logout": "Sign out",
+    "language": "Language"
+  },
+  "hero": {
+    "eyebrow": "Ragnarok Classic · Episode 1.0 - 4.0 · Low Rate",
+    "title": "Open Pandora's Box",
+    "subtitle": "Pre-register today. The more players join, the more chains break — and the more rewards everyone gets.",
+    "cta": "Pre-register now",
+    "ctaSignedIn": "Go to my box",
+    "registered": "{count, number} players registered"
+  },
+  "countdown": {
+    "title": "Open beta starts in",
+    "days": "Days",
+    "hours": "Hours",
+    "minutes": "Min",
+    "seconds": "Sec",
+    "tbd": "Coming soon"
+  },
+  "milestones": {
+    "title": "Chains of Pandora",
+    "subtitle": "Every goal reached breaks a chain, and every player gets that tier's reward.",
+    "target": "{count, number} players",
+    "unlocked": "Unlocked",
+    "locked": "Locked"
+  },
+  "quests": {
+    "title": "Pre-register quests",
+    "points": "+{points, number} pts"
+  },
+  "login": {
+    "title": "Sign in / Register",
+    "subtitle": "One click, no password needed",
+    "google": "Continue with Google",
+    "discord": "Continue with Discord",
+    "terms": "By continuing you agree to our Terms of Service and Privacy Policy."
+  },
+  "dashboard": {
+    "title": "My Box",
+    "welcome": "Welcome, {name}",
+    "balance": "Points",
+    "referralLink": "Your invite link",
+    "linkedAccounts": "Linked accounts",
+    "linkDiscord": "Link Discord",
+    "linked": "Linked"
+  },
+  "footer": {
+    "disclaimer": "PANDORA-RO is an independent server and is not affiliated with Gravity Co., Ltd.",
+    "rights": "© {year} PANDORA-RO"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "back": "Back to home"
+  }
+}

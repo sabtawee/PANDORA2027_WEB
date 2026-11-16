@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+/* ───────────── PANDORA design tokens ─────────────
+   The site is dark-only by design (dark fantasy theme). */
+:root {
+  --bg: #0b0812;
+  --bg-raised: #140f20;
+  --bg-sunken: #07050c;
+  --line: #2a2140;
+  --line-strong: #4a3a6e;
+  --text: #f3ecdc;
+  --text-muted: #b7aecb;
+  --text-faint: #7d7494;
+  --gold: #d4a84b;
+  --gold-bright: #f1cf7a;
+  --gold-deep: #8f6b22;
+  --arcane: #7b4bd4;
+  --arcane-bright: #a982ff;
+  --ember: #e0603a;
+  --success: #5fc48a;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-raised: var(--bg-raised);
+  --color-bg-sunken: var(--bg-sunken);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-faint: var(--text-faint);
+  --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+  --color-gold-deep: var(--gold-deep);
+  --color-arcane: var(--arcane);
+  --color-arcane-bright: var(--arcane-bright);
+  --color-ember: var(--ember);
+  --color-success: var(--success);
+
+  --font-sans: var(--font-kanit), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-cinzel), var(--font-kanit), serif;
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-glow: glow 3.2s ease-in-out infinite;
+  --animate-rise: rise linear infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes glow {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+  }
+  @keyframes rise {
+    0% { transform: translateY(0) scale(1); opacity: 0; }
+    15% { opacity: 0.9; }
+    100% { transform: translateY(-70vh) scale(0.4); opacity: 0; }
+  }
+}
+
+html {
+  color-scheme: dark;
+  background: var(--bg);
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgb(123 75 212 / 0.22), transparent 70%),
+    radial-gradient(800px 400px at 50% 110%, rgb(212 168 75 / 0.08), transparent 70%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgb(212 168 75 / 0.35);
+}
+
+/* Gold gradient text used for headings */
+.text-gilded {
+  background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold) 55%, var(--gold-deep) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Framed panel with a thin gold inner border */
+.panel {
+  background: linear-gradient(180deg, rgb(20 15 32 / 0.92), rgb(11 8 18 / 0.92));
+  border: 1px solid var(--line);
+  box-shadow: inset 0 0 0 1px rgb(212 168 75 / 0.06), 0 20px 60px -30px rgb(0 0 0 / 0.8);
+  border-radius: 14px;
+}
+
+.btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.85rem 1.75rem;
+  font-weight: 600;
+  color: #1a1206;
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold) 60%, var(--gold-deep));
+  box-shadow: 0 0 0 1px rgb(241 207 122 / 0.5), 0 10px 30px -8px rgb(212 168 75 / 0.55);
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.btn-gold:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px rgb(241 207 122 / 0.8), 0 14px 36px -8px rgb(212 168 75 / 0.75);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+  transition: border-color 150ms ease, background 150ms ease;
+}
+.btn-ghost:hover {
+  border-color: var(--gold);
+  background: rgb(212 168 75 / 0.06);
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "meta": {
+    "siteName": "PANDORA-RO",
+    "title": "PANDORA-RO 1.0-4.0 | เซิร์ฟ Ragnarok Classic Low Rate เปิดใหม่",
+    "description": "เซิร์ฟ Ragnarok Classic Episode 1.0-4.0 แบบ Low Rate ลงทะเบียนล่วงหน้า สะสมแต้ม ปลดล็อกกล่องแพนโดร่า รับของรางวัลวันเปิดเซิร์ฟ"
+  },
+  "nav": {
+    "home": "หน้าแรก",
+    "news": "ข่าวสาร",
+    "roadmap": "Roadmap",
+    "dashboard": "กล่องของฉัน",
+    "login": "เข้าสู่ระบบ",
+    "logout": "ออกจากระบบ",
+    "language": "ภาษา"
+  },
+  "hero": {
+    "eyebrow": "Ragnarok Classic · Episode 1.0 - 4.0 · Low Rate",
+    "title": "เปิดกล่องแพนโดร่า",
+    "subtitle": "ลงทะเบียนล่วงหน้าวันนี้ ยิ่งคนสมัครมาก โซ่ยิ่งแตก ของรางวัลยิ่งเยอะ — สำหรับทุกคน",
+    "cta": "ลงทะเบียนรับกล่อง",
+    "ctaSignedIn": "ดูกล่องของฉัน",
+    "registered": "{count, number} คนลงทะเบียนแล้ว"
+  },
+  "countdown": {
+    "title": "เปิดเซิร์ฟ (OBT) ใน",
+    "days": "วัน",
+    "hours": "ชั่วโมง",
+    "minutes": "นาที",
+    "seconds": "วินาที",
+    "tbd": "ประกาศเร็วๆ นี้"
+  },
+  "milestones": {
+    "title": "โซ่แห่งแพนโดร่า",
+    "subtitle": "ทุกเป้าหมายที่ทำได้ โซ่จะแตกหนึ่งเส้น และทุกคนได้รับรางวัลขั้นนั้น",
+    "target": "{count, number} คน",
+    "unlocked": "ปลดล็อกแล้ว",
+    "locked": "ยังล็อกอยู่"
+  },
+  "quests": {
+    "title": "ภารกิจช่วงลงทะเบียน",
+    "points": "+{points, number} แต้ม"
+  },
+  "login": {
+    "title": "เข้าสู่ระบบ / ลงทะเบียน",
+    "subtitle": "กดครั้งเดียว ไม่ต้องตั้งรหัสผ่าน",
+    "google": "ดำเนินการต่อด้วย Google",
+    "discord": "ดำเนินการต่อด้วย Discord",
+    "terms": "การดำเนินการต่อถือว่าคุณยอมรับเงื่อนไขการใช้งานและนโยบายความเป็นส่วนตัว"
+  },
+  "dashboard": {
+    "title": "กล่องของฉัน",
+    "welcome": "ยินดีต้อนรับ {name}",
+    "balance": "แต้มสะสม",
+    "referralLink": "ลิงก์ชวนเพื่อนของคุณ",
+    "linkedAccounts": "บัญชีที่เชื่อมต่อ",
+    "linkDiscord": "เชื่อม Discord",
+    "linked": "เชื่อมแล้ว"
+  },
+  "footer": {
+    "disclaimer": "PANDORA-RO เป็นเซิร์ฟเวอร์อิสระ ไม่มีส่วนเกี่ยวข้องกับ Gravity Co., Ltd.",
+    "rights": "© {year} PANDORA-RO"
+  },
+  "notFound": {
+    "title": "ไม่พบหน้านี้",
+    "back": "กลับหน้าแรก"
+  }
+}
