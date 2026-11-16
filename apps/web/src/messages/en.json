@@ -38,7 +38,8 @@
   },
   "quests": {
     "title": "Pre-register quests",
-    "points": "+{points, number} pts"
+    "points": "+{points, number} pts",
+    "referralCount": "{qualified, number} qualified · {pending, number} pending"
   },
   "login": {
     "title": "Sign in / Register",
@@ -63,5 +64,29 @@
   "notFound": {
     "title": "Page not found",
     "back": "Back to home"
+  },
+  "share": {
+    "hint": "Earn points when a friend registers through this link and joins our Discord",
+    "message": "Join me on PANDORA-RO, a new Ragnarok Classic server! Pre-register for free rewards",
+    "copy": "Copy",
+    "copied": "Copied ✓",
+    "copyPrompt": "Copy this link",
+    "linkLabel": "Invite link",
+    "more": "More"
+  },
+  "discord": {
+    "join": "Join Discord",
+    "verify": "Verify",
+    "checking": "Checking…",
+    "result": {
+      "not-linked": "Discord isn't linked yet",
+      "not-member": "We can't find you in our Discord yet — join, then verify again",
+      "unconfigured": "Discord integration isn't enabled yet"
+    }
+  },
+  "consent": {
+    "text": "We use essential cookies to run the site, and ask permission for analytics/ads cookies to improve our campaigns.",
+    "accept": "Accept all",
+    "necessary": "Essential only"
   }
 }

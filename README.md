@@ -36,6 +36,29 @@
    ```
    เปิด http://localhost:3000
 
+### ตั้งตัวเองเป็น admin
+
+ล็อกอินเข้าเว็บ 1 ครั้งก่อน แล้วรัน (เปลี่ยนเป็นอีเมลของคุณ):
+
+```bash
+npm run admin:grant -w web -- you@example.com
+```
+
+จากนั้นเข้า http://localhost:3000/admin
+
+### Discord (ภารกิจเข้าเซิร์ฟ)
+
+1. สร้าง Bot ใน Discord Developer Portal (application เดียวกับ OAuth) แล้วเชิญเข้าเซิร์ฟด้วยสิทธิ์ **Create Invite** (+ **Manage Roles** ถ้าจะให้ยศ)
+2. ใส่ `DISCORD_GUILD_ID`, `DISCORD_BOT_TOKEN` (และ `DISCORD_PREREG_ROLE_ID` ถ้ามี) ใน `.env`
+3. ใส่ลิงก์เชิญ discord.gg ใน admin → ตั้งค่าเว็บ
+
+เมื่อผู้เล่นผูก Discord ระบบจะพาเข้าเซิร์ฟให้อัตโนมัติและให้แต้ม ถ้าเพื่อนที่ถูกชวนเข้าเซิร์ฟ ผู้ชวนจะได้แต้ม referral
+
+### Tracking
+
+ใส่ Pixel ID / GA4 / TikTok ใน admin → ตั้งค่าเว็บ (โหลดเมื่อผู้ใช้กดยอมรับคุกกี้เท่านั้น)
+Meta Conversions API ฝั่ง server ต้องใส่ `META_CAPI_TOKEN` ใน `.env`
+
 ### OAuth redirect URIs (ตอน dev)
 
 - Google: `http://localhost:3000/api/auth/callback/google`

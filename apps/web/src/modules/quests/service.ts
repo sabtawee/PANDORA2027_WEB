@@ -2,6 +2,19 @@ import "server-only";
 import { prisma } from "@/core/db/prisma";
 import { awardPoints } from "@/modules/points/service";
 
+/** Active quests with this user's progress merged in, for the dashboard. */
+export async function getUserQuests(userId: string) {
+  const [quests, progress] = await Promise.all([
+    prisma.quest.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } }),
+    prisma.questProgress.findMany({ where: { userId } }),
+  ]);
+  const byQuest = new Map(progress.map((p) => [p.questId, p]));
+  return quests.map((q) => ({
+    ...q,
+    completed: byQuest.get(q.id)?.status === "COMPLETED",
+  }));
+}
+
 /**
  * Complete a one-off quest by key and pay its points (amount comes from the
  * Quest row, so admin can change it). Idempotent per user + quest.

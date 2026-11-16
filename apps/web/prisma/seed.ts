@@ -53,6 +53,7 @@ const settings: Record<string, unknown> = {
   "site.launch": { cbtAt: null, obtAt: "2027-02-14T12:00:00+07:00" },
   "site.links": { discord: "", facebook: "", tiktok: "", youtube: "" },
   "site.maintenance": false,
+  tracking: { metaPixelId: "", ga4Id: "", tiktokPixelId: "" },
   "modules.enabled": {
     preregister: true,
     quests: true,

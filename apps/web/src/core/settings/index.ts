@@ -6,6 +6,8 @@ export const SETTING_DEFAULTS = {
   "site.launch": { cbtAt: null as string | null, obtAt: null as string | null },
   "site.links": { discord: "", facebook: "", tiktok: "", youtube: "" },
   "site.maintenance": false,
+  /** Public pixel / measurement IDs (not secrets). The CAPI token lives in env. */
+  tracking: { metaPixelId: "", ga4Id: "", tiktokPixelId: "" },
   "modules.enabled": {
     preregister: true,
     quests: true,

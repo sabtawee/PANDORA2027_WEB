@@ -7,6 +7,9 @@ import { routing } from "@/core/i18n/routing";
 import { buildMetadata, SITE_URL } from "@/core/seo";
 import { SiteHeader } from "@/core/ui/SiteHeader";
 import { SiteFooter } from "@/core/ui/SiteFooter";
+import { getSetting } from "@/core/settings";
+import { ConsentBanner } from "@/modules/tracking/ConsentBanner";
+import { Trackers } from "@/modules/tracking/Trackers";
 import "../globals.css";
 
 const kanit = Kanit({
@@ -45,6 +48,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
+  const trackingIds = await getSetting("tracking");
 
   return (
     <html lang={locale} className={`${kanit.variable} ${cinzel.variable} h-full`}>
@@ -53,6 +57,8 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
           <SiteHeader />
           <main className="flex-1">{children}</main>
           <SiteFooter />
+          <ConsentBanner />
+          <Trackers ids={trackingIds} />
         </NextIntlClientProvider>
       </body>
     </html>

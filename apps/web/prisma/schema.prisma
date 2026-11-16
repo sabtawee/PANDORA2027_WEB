@@ -185,6 +185,8 @@ model Referral {
   inviterId   String
   inviteeId   String         @unique
   status      ReferralStatus @default(PENDING)
+  /// Same signup IP as the inviter (could be a net café) → held for admin review, never auto-paid
+  flagged     Boolean        @default(false)
   qualifiedAt DateTime?
   createdAt   DateTime       @default(now())
 

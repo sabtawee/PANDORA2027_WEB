@@ -6,6 +6,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import type { Adapter, AdapterUser } from "next-auth/adapters";
 import { prisma } from "@/core/db/prisma";
 import { emit } from "@/core/events";
+import { readSignupContext } from "@/core/tracking/request";
 import { generateReferralCode } from "./referral-code";
 import type { Role } from "@/generated/prisma/client";
 import "@/modules";
@@ -62,8 +63,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   events: {
+    // Auth.js runs createUser before linkAccount, so the referral is recorded
+    // before the Discord join can qualify it.
     async createUser({ user }) {
-      if (user.id) await emit("user.registered", { userId: user.id, provider: "oauth" });
+      if (!user.id) return;
+      const context = await readSignupContext();
+      await emit("user.registered", { userId: user.id, email: user.email ?? null, context });
+    },
+    async linkAccount({ user, account }) {
+      if (account.provider === "discord" && user.id) {
+        await emit("discord.linked", {
+          userId: user.id,
+          discordId: account.providerAccountId,
+          accessToken: account.access_token ?? null,
+        });
+      }
     },
   },
 });

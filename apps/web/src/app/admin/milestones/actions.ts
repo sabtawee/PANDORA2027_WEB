@@ -1,0 +1,80 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { z } from "zod";
+import { audit } from "@/core/audit";
+import { prisma } from "@/core/db/prisma";
+import { requireRole } from "@/core/rbac";
+
+/** "501:10" per line → [{ itemId: 501, amount: 10 }] */
+const items = z
+  .string()
+  .transform((text) =>
+    text
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(Boolean)
+      .map((l) => {
+        const m = l.match(/^(\d{1,7})\s*[:x×]\s*(\d{1,5})$/i);
+        if (!m) throw new Error(`รูปแบบไอเทมไม่ถูกต้อง: "${l}" (ใช้ itemId:จำนวน)`);
+        return { itemId: Number(m[1]), amount: Number(m[2]) };
+      }),
+  );
+
+const schema = z.object({
+  id: z.string().optional(),
+  target: z.coerce.number().int().min(1).max(10_000_000),
+  titleTh: z.string().trim().min(1).max(120),
+  titleEn: z.string().trim().max(120),
+  descTh: z.string().trim().max(300),
+  descEn: z.string().trim().max(300),
+  items,
+  sortOrder: z.coerce.number().int().min(0).max(999),
+  isActive: z.boolean(),
+});
+
+function parse(formData: FormData) {
+  const s = (k: string) => String(formData.get(k) ?? "");
+  return schema.parse({
+    id: s("id") || undefined,
+    target: s("target"),
+    titleTh: s("titleTh"),
+    titleEn: s("titleEn"),
+    descTh: s("descTh"),
+    descEn: s("descEn"),
+    items: s("items"),
+    sortOrder: s("sortOrder") || "0",
+    isActive: formData.get("isActive") === "on",
+  });
+}
+
+export async function saveMilestone(formData: FormData) {
+  const user = await requireRole("ADMIN");
+  const m = parse(formData);
+  const data = {
+    target: m.target,
+    title: { th: m.titleTh, en: m.titleEn },
+    description: { th: m.descTh, en: m.descEn },
+    items: m.items,
+    sortOrder: m.sortOrder,
+    isActive: m.isActive,
+  };
+  const saved = m.id
+    ? await prisma.milestone.update({ where: { id: m.id }, data })
+    : await prisma.milestone.create({ data });
+  await audit(user.id, m.id ? "milestone.update" : "milestone.create", saved.id, data);
+
+  revalidatePath("/", "layout");
+  redirect("/admin/milestones?ok=1");
+}
+
+export async function deleteMilestone(formData: FormData) {
+  const user = await requireRole("ADMIN");
+  const id = z.string().min(1).parse(formData.get("id"));
+  const before = await prisma.milestone.delete({ where: { id } });
+  await audit(user.id, "milestone.delete", id, { target: before.target, title: before.title });
+
+  revalidatePath("/", "layout");
+  redirect("/admin/milestones?ok=1");
+}

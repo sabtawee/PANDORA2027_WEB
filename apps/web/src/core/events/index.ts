@@ -1,4 +1,5 @@
 import "server-only";
+import type { SignupContext } from "@/core/tracking/request";
 
 /**
  * In-process event bus. Modules publish domain events here and other
@@ -8,7 +9,8 @@ import "server-only";
  * re-thrown: one module's bug must not break sign-in for everyone.
  */
 export type DomainEvents = {
-  "user.registered": { userId: string; provider: string };
+  "user.registered": { userId: string; email: string | null; context: SignupContext };
+  "discord.linked": { userId: string; discordId: string; accessToken: string | null };
   "discord.joined": { userId: string; discordId: string };
   "points.awarded": { userId: string; amount: number; reason: string };
 };

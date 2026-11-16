@@ -2,10 +2,18 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { auth, signIn, signOut } from "@/core/auth";
 import { prisma } from "@/core/db/prisma";
+import { pickLocale } from "@/core/i18n/localized";
 import { redirect } from "@/core/i18n/navigation";
 import type { Locale } from "@/core/i18n/routing";
 import { buildMetadata, localeUrl } from "@/core/seo";
+import { getSetting } from "@/core/settings";
+import { RegistrationPixel } from "@/modules/tracking/RegistrationPixel";
+import { VerifyDiscordButton } from "@/modules/discord/VerifyDiscordButton";
 import { getBalance } from "@/modules/points/service";
+import { getUserQuests } from "@/modules/quests/service";
+import { getReferralStats } from "@/modules/referral/service";
+import { ShareButtons } from "@/modules/share/ShareButtons";
+import { isFreshSignup } from "@/modules/tracking/conversion";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/dashboard">): Promise<Metadata> {
   const locale = (await params).locale as Locale;
@@ -21,17 +29,26 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/das
   if (!session?.user) return redirect({ href: "/login", locale });
 
   const userId = session.user.id;
-  const [t, tn, balance, accounts] = await Promise.all([
+  const [t, tn, tq, ts, balance, accounts, quests, referrals, links, user] = await Promise.all([
     getTranslations("dashboard"),
     getTranslations("nav"),
+    getTranslations("quests"),
+    getTranslations("share"),
     getBalance(userId),
     prisma.account.findMany({ where: { userId }, select: { provider: true } }),
+    getUserQuests(userId),
+    getReferralStats(userId),
+    getSetting("site.links"),
+    prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { createdAt: true } }),
   ]);
   const providers = new Set(accounts.map((a) => a.provider));
   const inviteUrl = `${localeUrl(locale)}?ref=${session.user.referralCode}`;
+  const isNewUser = isFreshSignup(user.createdAt);
 
   return (
     <section className="mx-auto max-w-3xl px-4 py-12">
+      {isNewUser && <RegistrationPixel eventId={`reg_${userId}`} />}
+
       <h1 className="font-display text-3xl text-gilded">{t("title")}</h1>
       <p className="mt-2 text-muted">{t("welcome", { name: session.user.name ?? "" })}</p>
 
@@ -67,11 +84,44 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/das
         </div>
       </div>
 
+      {/* ───── Quests ───── */}
       <div className="panel mt-4 p-6">
-        <p className="text-sm text-muted">{t("referralLink")}</p>
-        <p className="mt-2 break-all rounded-lg border border-line bg-bg-sunken px-3 py-2 font-mono text-sm text-gold-bright">
-          {inviteUrl}
-        </p>
+        <h2 className="font-medium">{tq("title")}</h2>
+        <ul className="mt-4 divide-y divide-line">
+          {quests.map((q) => (
+            <li key={q.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+              <div className="flex items-center gap-3">
+                <span
+                  aria-hidden
+                  className={`grid h-6 w-6 place-items-center rounded-full text-xs ${
+                    q.completed ? "bg-success text-bg" : "border border-line-strong text-faint"
+                  }`}
+                >
+                  {q.completed ? "✓" : ""}
+                </span>
+                <div>
+                  <p className={q.completed ? "text-muted line-through decoration-faint" : ""}>{pickLocale(q.title, locale)}</p>
+                  <p className="text-xs text-gold">{tq("points", { points: q.points })}</p>
+                </div>
+              </div>
+              {q.type === "DISCORD_JOIN" && !q.completed && providers.has("discord") && (
+                <VerifyDiscordButton inviteUrl={links.discord} />
+              )}
+              {q.type === "REFERRAL" && (
+                <p className="text-sm text-muted">
+                  {tq("referralCount", { qualified: referrals.qualified, pending: referrals.pending })}
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* ───── Invite ───── */}
+      <div className="panel mt-4 p-6">
+        <h2 className="font-medium">{t("referralLink")}</h2>
+        <p className="mt-1 mb-4 text-sm text-muted">{ts("hint")}</p>
+        <ShareButtons url={inviteUrl} text={ts("message")} />
       </div>
 
       <form
