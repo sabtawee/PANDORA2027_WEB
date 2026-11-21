@@ -16,7 +16,7 @@ export function uploadDir() {
   return path.resolve(process.env.UPLOAD_DIR || path.join(process.cwd(), "uploads"));
 }
 
-const FOLDERS = new Set(["milestones", "tiers"]);
+const FOLDERS = new Set(["milestones", "tiers", "avatars"]);
 
 /** Detect the real type from the file's first bytes (never trust the name or browser type). SVG is refused: it can carry scripts. */
 function sniff(buf: Buffer): { ext: string; mime: string } | null {

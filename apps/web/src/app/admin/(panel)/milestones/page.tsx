@@ -1,7 +1,7 @@
 import { prisma } from "@/core/db/prisma";
 import { requireAdmin } from "@/core/admin/session";
 import { Card, Field, Flash, inputCls, PageTitle, SaveButton } from "../ui";
-import { ImageField } from "../ImageField";
+import { ImageField } from "@/core/ui/ImageField";
 import { deleteMilestone, saveMilestone } from "./actions";
 
 type Localized = Record<string, string>;

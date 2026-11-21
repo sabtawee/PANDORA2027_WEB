@@ -3,7 +3,7 @@ import { requireAdmin } from "@/core/admin/session";
 import { formatItemLines } from "@/modules/rewards/items";
 import { TIER_COLORS } from "@/modules/rewards/tiers";
 import { Card, Field, Flash, inputCls, PageTitle, SaveButton } from "../ui";
-import { ImageField } from "../ImageField";
+import { ImageField } from "@/core/ui/ImageField";
 import { deleteTier, saveTier } from "./actions";
 
 type Localized = Record<string, string>;

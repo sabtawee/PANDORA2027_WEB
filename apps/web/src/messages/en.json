@@ -12,7 +12,12 @@
     "login": "Sign in",
     "logout": "Sign out",
     "language": "Language",
-    "leaderboard": "Leaderboard"
+    "leaderboard": "Leaderboard",
+    "loginRegister": "Log in / Sign up",
+    "profile": "Manage profile",
+    "accountMenu": "Account menu",
+    "player": "Player",
+    "points": "{points, number} pts"
   },
   "hero": {
     "eyebrow": "Ragnarok Classic · Episode 1.0 - 4.0 · Low Rate",
@@ -149,5 +154,31 @@
     "prev": "← Newer",
     "next": "Older →",
     "cta": "Pre-register for free rewards"
+  },
+  "profile": {
+    "title": "My profile",
+    "memberSince": "Member since {date}",
+    "saved": "Saved",
+    "error": {
+      "name": "Name must be 2–24 characters: letters, numbers, spaces and . _ - only",
+      "image": "Upload failed. Use PNG, JPG, WebP or GIF up to 2 MB",
+      "rate": "Too many saves. Try again in a moment"
+    },
+    "avatar": "Profile picture",
+    "avatarPick": "Click to choose a picture",
+    "avatarHint": "PNG, JPG, WebP or GIF · up to 2 MB · square works best",
+    "avatarPending": "New picture, saved when you press Save",
+    "avatarRemove": "Remove picture (use initial)",
+    "avatarTooBig": "Picture is larger than 2 MB",
+    "name": "Display name",
+    "nameHint": "Shown in the navbar and on the leaderboard (partly hidden there)",
+    "language": "Language",
+    "email": "Email",
+    "save": "Save",
+    "linkedAccounts": "Linked accounts",
+    "linkedHint": "Link both Google and Discord to log in either way",
+    "linked": "Linked",
+    "link": "Link {provider}",
+    "referral": "Invite link"
   }
 }

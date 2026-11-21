@@ -47,6 +47,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Google,
     Discord({
+      // Discord now adds `iss` to the OAuth callback (RFC 9207); without a
+      // matching issuer Auth.js rejects it with OAUTH_INVALID_RESPONSE.
+      issuer: "https://discord.com",
       // guilds.join lets the bot add the player to our Discord server (week 2)
       authorization: { params: { scope: "identify email guilds.join" } },
     }),

@@ -3,8 +3,9 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/core/i18n/navigation";
 import { getSetting } from "@/core/settings";
 import { LocaleSwitcher } from "./LocaleSwitcher";
+import { UserMenu } from "./UserMenu";
 
-/** No session read here, so the header never makes a page dynamic. */
+/** No session read here, so the header never makes a page dynamic (UserMenu loads it client-side). */
 export async function SiteHeader() {
   const [t, modules] = await Promise.all([getTranslations("nav"), getSetting("modules.enabled")]);
   return (
@@ -23,9 +24,7 @@ export async function SiteHeader() {
             {t("leaderboard")}
           </Link>
           <LocaleSwitcher />
-          <Link href="/dashboard" className="btn-ghost whitespace-nowrap px-3 text-sm sm:px-5">
-            {t("dashboard")}
-          </Link>
+          <UserMenu />
         </div>
       </div>
     </header>
