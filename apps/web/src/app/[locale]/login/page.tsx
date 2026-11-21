@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { auth, signIn } from "@/core/auth";
+import { auth } from "@/core/auth";
 import { redirect } from "@/core/i18n/navigation";
 import type { Locale } from "@/core/i18n/routing";
 import { buildMetadata } from "@/core/seo";
+import { LoginForm } from "./LoginForm";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/login">): Promise<Metadata> {
   const locale = (await params).locale as Locale;
@@ -11,15 +12,16 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/login">)
   return buildMetadata({ locale, path: "/login", title: t("title"), description: t("subtitle"), noindex: true });
 }
 
-export default async function LoginPage({ params }: PageProps<"/[locale]/login">) {
+export default async function LoginPage({ params, searchParams }: PageProps<"/[locale]/login">) {
   const locale = (await params).locale as Locale;
+  const { error } = await searchParams;
+  const errorKey = error === "captcha" ? "errorCaptcha" : error === "rate" ? "errorRate" : error === "AccessDenied" ? "errorDenied" : error ? "errorGeneric" : null;
   setRequestLocale(locale);
 
   const session = await auth();
   if (session?.user) redirect({ href: "/dashboard", locale });
 
   const t = await getTranslations("login");
-  const redirectTo = `/${locale}/dashboard`;
 
   return (
     <section className="mx-auto flex max-w-md flex-col px-4 py-16 sm:py-24">
@@ -27,29 +29,28 @@ export default async function LoginPage({ params }: PageProps<"/[locale]/login">
         <h1 className="font-display text-2xl text-gilded">{t("title")}</h1>
         <p className="mt-2 text-sm text-muted">{t("subtitle")}</p>
 
-        <div className="mt-8 space-y-3">
-          <form
-            action={async () => {
-              "use server";
-              await signIn("google", { redirectTo });
-            }}
-          >
-            <button type="submit" className="flex w-full items-center justify-center gap-3 rounded-full bg-white px-5 py-3 font-medium text-[#1f1f1f] transition hover:bg-white/90">
-              <GoogleIcon />
-              {t("google")}
-            </button>
-          </form>
-          <form
-            action={async () => {
-              "use server";
-              await signIn("discord", { redirectTo });
-            }}
-          >
-            <button type="submit" className="flex w-full items-center justify-center gap-3 rounded-full bg-[#5865F2] px-5 py-3 font-medium text-white transition hover:bg-[#4752c4]">
-              <DiscordIcon />
-              {t("discord")}
-            </button>
-          </form>
+        {errorKey && (
+          <p role="alert" className="mt-6 rounded-md border border-ember/50 bg-ember/10 px-3 py-2 text-sm text-ember">
+            {t(errorKey)}
+          </p>
+        )}
+
+        <div className="mt-8">
+          <LoginForm
+            locale={locale}
+            google={
+              <>
+                <GoogleIcon />
+                {t("google")}
+              </>
+            }
+            discord={
+              <>
+                <DiscordIcon />
+                {t("discord")}
+              </>
+            }
+          />
         </div>
 
         <p className="mt-6 text-xs leading-relaxed text-faint">{t("terms")}</p>

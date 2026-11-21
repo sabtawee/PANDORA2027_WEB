@@ -10,6 +10,8 @@ export const SETTING_DEFAULTS = {
   tracking: { metaPixelId: "", ga4Id: "", tiktokPixelId: "" },
   /** Prize text shown on the referral leaderboard page */
   leaderboard: { prizeTh: "", prizeEn: "" },
+  /** Anti-fraud limits. 0 = off. Net cafés share one IP, so keep this generous. */
+  fraud: { maxSignupsPerIp24h: 10 },
   "modules.enabled": {
     preregister: true,
     quests: true,

@@ -8,6 +8,7 @@ import { prisma } from "@/core/db/prisma";
 import { emit } from "@/core/events";
 import { readSignupContext } from "@/core/tracking/request";
 import { generateReferralCode } from "./referral-code";
+import { checkNewSignup, hasActiveSession } from "@/core/security/signup-guard";
 import type { Role } from "@/generated/prisma/client";
 import "@/modules";
 
@@ -52,16 +53,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   // Linking Discord to a Google account = signing in with Discord while
   // already signed in; Auth.js attaches the new Account to the current user.
-  pages: { signIn: "/th/login" },
+  pages: { signIn: "/th/login", error: "/th/login" },
   callbacks: {
-    // Banned players can't sign in (admin ban also deletes their sessions).
     async signIn({ account }) {
       if (!account) return true;
       const existing = await prisma.account.findUnique({
         where: { provider_providerAccountId: { provider: account.provider, providerAccountId: account.providerAccountId } },
         select: { user: { select: { status: true } } },
       });
-      return existing?.user.status !== "BANNED";
+      // Returning player: only banned accounts are refused (a ban also deletes their sessions).
+      if (existing) return existing.user.status !== "BANNED";
+      // Signed-in player linking a second provider (e.g. Discord from the dashboard).
+      if (await hasActiveSession()) return true;
+      // Brand-new account: must have passed the bot check and be under the per-IP cap.
+      return checkNewSignup();
     },
     async session({ session, user }) {
       const u = user as AdapterUser & { role: Role; referralCode: string };

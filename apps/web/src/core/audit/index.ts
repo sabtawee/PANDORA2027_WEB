@@ -1,13 +1,43 @@
 import "server-only";
-import { headers } from "next/headers";
+import { requestMeta } from "@/core/admin/request";
 import { prisma } from "@/core/db/prisma";
-import type { Prisma } from "@/generated/prisma/client";
+import type { AuditOp, Prisma } from "@/generated/prisma/client";
 
-/** Record an admin change. Every admin write must call this. */
-export async function audit(actorId: string, action: string, target: string | null, data?: unknown) {
-  const h = await headers();
-  const ip = h.get("cf-connecting-ip") ?? h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+export interface AuditEntry {
+  /** Staff member (AdminUser.id). null = system / automated. */
+  adminId: string | null;
+  op: AuditOp;
+  /** e.g. "news.update" */
+  action: string;
+  /** e.g. "news", "quest", "user" */
+  entity?: string;
+  /** id / key of the changed record */
+  target?: string | null;
+  /** Record as it was before the change (UPDATE / DELETE) */
+  before?: unknown;
+  /** Record as it is after the change (CREATE / UPDATE) */
+  after?: unknown;
+  /** Anything else worth keeping (reason, counts …) */
+  data?: unknown;
+}
+
+const json = (v: unknown) => (v === undefined || v === null ? undefined : (JSON.parse(JSON.stringify(v)) as Prisma.InputJsonValue));
+
+/** Record a back-office change. Every admin write must call this. */
+export async function audit(e: AuditEntry) {
+  const { ip, userAgent } = await requestMeta();
   await prisma.auditLog.create({
-    data: { actorId, action, target, data: data as Prisma.InputJsonValue, ip },
+    data: {
+      adminId: e.adminId,
+      op: e.op,
+      action: e.action,
+      entity: e.entity ?? e.action.split(".")[0],
+      target: e.target?.slice(0, 120) ?? null,
+      before: json(e.before),
+      after: json(e.after),
+      data: json(e.data),
+      ip,
+      userAgent,
+    },
   });
 }

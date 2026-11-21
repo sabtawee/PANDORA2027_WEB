@@ -2,6 +2,8 @@ import "server-only";
 import { cookies, headers } from "next/headers";
 import {
   ATTR_COOKIE,
+  FP_COOKIE,
+  FP_RE,
   CONSENT_COOKIE,
   REF_CODE_RE,
   REF_COOKIE,
@@ -16,6 +18,8 @@ export interface SignupContext {
   userAgent: string | null;
   /** Meta browser id cookie, if the pixel set one */
   fbp: string | null;
+  /** Device fingerprint hash from the login page */
+  fingerprint: string | null;
 }
 
 /** Read what the visitor's browser carried into the OAuth callback. Never throws. */
@@ -38,8 +42,9 @@ export async function readSignupContext(): Promise<SignupContext> {
       ip: ip ?? null,
       userAgent: h.get("user-agent"),
       fbp: c.get("_fbp")?.value ?? null,
+      fingerprint: FP_RE.test(c.get(FP_COOKIE)?.value ?? "") ? c.get(FP_COOKIE)!.value : null,
     };
   } catch {
-    return { refCode: null, attribution: null, consent: false, ip: null, userAgent: null, fbp: null };
+    return { refCode: null, attribution: null, consent: false, ip: null, userAgent: null, fbp: null, fingerprint: null };
   }
 }

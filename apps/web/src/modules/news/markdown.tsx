@@ -45,7 +45,14 @@ function withBreaks(lines: string[], key: string): ReactNode[] {
 }
 
 export function Markdown({ source }: { source: string }) {
-  const blocks = source.replace(/\r\n/g, "\n").split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean);
+  // Headings, dividers and standalone images are always their own block, even
+  // when the editor didn't leave a blank line around them.
+  const blocks = source
+    .replace(/\r\n/g, "\n")
+    .replace(/^(#{1,3}\s.*|-{3,}|!\[[^\]]*\]\([^)\s]+\))[ \t]*$/gm, "\n$1\n")
+    .split(/\n\s*\n/)
+    .map((b) => b.trim())
+    .filter(Boolean);
 
   return (
     <>

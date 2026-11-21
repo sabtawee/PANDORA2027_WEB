@@ -49,3 +49,7 @@ export function attributionFromUrl(url: URL, referrer: string | null): Attributi
 }
 
 export const REF_CODE_RE = /^[A-Z2-9]{6,12}$/;
+
+/** Device fingerprint hash set by the login page (fraud checks only, never shared). */
+export const FP_COOKIE = "pd_fp";
+export const FP_RE = /^[a-f0-9]{64}$/;

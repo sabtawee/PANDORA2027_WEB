@@ -3,7 +3,7 @@ import { on } from "@/core/events";
 import { qualifyReferral, recordReferral } from "./service";
 
 on("user.registered", async ({ userId, context }) => {
-  if (context.refCode) await recordReferral(userId, context.refCode, context.ip);
+  if (context.refCode) await recordReferral(userId, context.refCode, context.ip, context.fingerprint);
 });
 
 on("discord.joined", async ({ userId }) => {

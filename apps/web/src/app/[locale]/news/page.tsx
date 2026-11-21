@@ -10,6 +10,9 @@ import { listPublishedNews, NEWS_CATEGORIES, newsEnabled } from "@/modules/news/
 
 export const revalidate = 300;
 
+/** Placeholder tint per category when a post has no cover image. */
+const CATEGORY_TINT = { NEWS: "#c9a24a", PATCH: "#5fb8e6", GUIDE: "#7ccf6a", EVENT: "#e8805a" } as const;
+
 type Cat = (typeof NEWS_CATEGORIES)[number];
 const parseCat = (v: unknown): Cat | undefined => (NEWS_CATEGORIES as readonly string[]).includes(String(v).toUpperCase()) ? (String(v).toUpperCase() as Cat) : undefined;
 
@@ -67,7 +70,14 @@ export default async function NewsListPage({ params, searchParams }: PageProps<"
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={p.coverImage} alt="" loading="lazy" className="aspect-[1200/630] w-full object-cover" />
               ) : (
-                <div className="aspect-[1200/630] w-full bg-gradient-to-br from-bg-sunken to-bg-raised" />
+                <div
+                  className="grid aspect-[1200/630] w-full place-items-center"
+                  style={{ background: `radial-gradient(120% 120% at 75% 20%, ${CATEGORY_TINT[p.category]}55, transparent 60%), var(--bg-sunken)` }}
+                >
+                  <span className={`font-display text-2xl opacity-80 ${locale === "en" ? "tracking-[0.2em] uppercase" : ""}`} style={{ color: CATEGORY_TINT[p.category] }}>
+                    {CATEGORY_LABEL[p.category][locale]}
+                  </span>
+                </div>
               )}
               <div className="flex flex-1 flex-col p-4">
                 <p className="text-xs text-gold">

@@ -3,16 +3,17 @@ import { prisma } from "@/core/db/prisma";
 import { awardPoints } from "@/modules/points/service";
 
 /** Link a new user to whoever invited them. Silently ignores bad / self codes. */
-export async function recordReferral(inviteeId: string, refCode: string, inviteeIp: string | null) {
+export async function recordReferral(inviteeId: string, refCode: string, inviteeIp: string | null, inviteeFp: string | null = null) {
   const inviter = await prisma.user.findUnique({
     where: { referralCode: refCode },
-    select: { id: true, status: true, signupIp: true },
+    select: { id: true, status: true, signupIp: true, signupFingerprint: true },
   });
   if (!inviter || inviter.id === inviteeId || inviter.status !== "ACTIVE") return null;
 
-  // Same signup IP as the inviter: could be a net café, could be one person
-  // with two accounts. Keep it, but hold payout for admin review.
-  const flagged = !!inviteeIp && inviter.signupIp === inviteeIp;
+  // Same signup IP or same device as the inviter: could be a net café or a
+  // shared family PC, could be one person with two accounts. Keep it, but
+  // hold payout for admin review.
+  const flagged = (!!inviteeIp && inviter.signupIp === inviteeIp) || (!!inviteeFp && inviter.signupFingerprint === inviteeFp);
 
   return prisma.referral.create({ data: { inviterId: inviter.id, inviteeId, flagged } });
 }

@@ -52,6 +52,8 @@ model User {
   signupIp          String?        @db.VarChar(45)
 
   @@index([createdAt])
+  @@index([signupIp, createdAt])
+  @@index([signupFingerprint])
 }
 
 model Account {
@@ -185,7 +187,7 @@ model Referral {
   inviterId   String
   inviteeId   String         @unique
   status      ReferralStatus @default(PENDING)
-  /// Same signup IP as the inviter (could be a net café) → held for admin review, never auto-paid
+  /// Same signup IP or device as the inviter → held for admin review, never auto-paid
   flagged     Boolean        @default(false)
   qualifiedAt DateTime?
   createdAt   DateTime       @default(now())
@@ -374,16 +376,112 @@ model Setting {
   updatedAt DateTime @updatedAt
 }
 
-model AuditLog {
-  id        String   @id @default(cuid())
-  actorId   String?
-  action    String   @db.VarChar(80)
-  target    String?  @db.VarChar(120)
-  data      Json?
-  ip        String?  @db.VarChar(45)
-  createdAt DateTime @default(now())
+// ───────────────────────────── Admin back office ─────────────────────────────
+// Staff accounts are separate from players: username + password, no SSO.
 
-  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+}
+
+model AdminUser {
+  id             String    @id @default(cuid())
+  username       String    @unique @db.VarChar(40)
+  displayName    String    @db.VarChar(80)
+  /// scrypt$N$r$p$salt$hash
+  passwordHash   String    @db.VarChar(255)
+  role           AdminRole @default(EDITOR)
+  isActive       Boolean   @default(true)
+  /// Set by a reset; the admin must pick a new password at next login
+  mustChangePassword Boolean @default(true)
+  failedAttempts Int       @default(0)
+  lockedUntil    DateTime?
+  lastLoginAt    DateTime?
+  lastLoginIp    String?   @db.VarChar(45)
+  passwordChangedAt DateTime @default(now())
+  createdById    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  sessions  AdminSession[]
+  loginLogs AdminLoginLog[]
+  auditLogs AuditLog[]
+}
+
+model AdminSession {
+  id         String   @id @default(cuid())
+  /// SHA-256 of the cookie token; the raw token is never stored
+  tokenHash  String   @unique @db.Char(64)
+  adminId    String
+  ip         String?  @db.VarChar(45)
+  userAgent  String?  @db.VarChar(255)
+  expiresAt  DateTime
+  lastSeenAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  admin AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId])
+}
+
+enum AdminLoginEvent {
+  LOGIN_SUCCESS
+  LOGIN_FAILED
+  LOGOUT
+}
+
+/// Every admin sign-in attempt (good or bad) and sign-out. Never deleted from the app.
+model AdminLoginLog {
+  id        String          @id @default(cuid())
+  adminId   String?
+  /// What was typed, kept even when no such admin exists
+  username  String          @db.VarChar(80)
+  event     AdminLoginEvent
+  /// OK, BAD_PASSWORD, UNKNOWN_USER, LOCKED, DISABLED, RATE_LIMIT, CAPTCHA, LOGOUT, EXPIRED
+  reason    String          @db.VarChar(30)
+  ip        String?         @db.VarChar(45)
+  userAgent String?         @db.VarChar(255)
+  createdAt DateTime        @default(now())
+
+  admin AdminUser? @relation(fields: [adminId], references: [id], onDelete: SetNull)
 
   @@index([createdAt])
+  @@index([adminId, createdAt])
+  @@index([ip, createdAt])
+}
+
+enum AuditOp {
+  CREATE
+  UPDATE
+  DELETE
+  ACTION
+  SECURITY
+}
+
+/// Every add / edit / delete made in the back office, with the values before and after.
+model AuditLog {
+  id        String   @id @default(cuid())
+  /// Staff member who made the change (null = system)
+  adminId   String?
+  /// Legacy: player-account admins before staff accounts existed
+  actorId   String?
+  op        AuditOp  @default(ACTION)
+  action    String   @db.VarChar(80)
+  /// What was changed, e.g. "quest", "news", "user"
+  entity    String?  @db.VarChar(40)
+  target    String?  @db.VarChar(120)
+  before    Json?
+  after     Json?
+  data      Json?
+  ip        String?  @db.VarChar(45)
+  userAgent String?  @db.VarChar(255)
+  createdAt DateTime @default(now())
+
+  admin AdminUser? @relation(fields: [adminId], references: [id], onDelete: SetNull)
+  actor User?      @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([adminId, createdAt])
+  @@index([entity, target])
 }

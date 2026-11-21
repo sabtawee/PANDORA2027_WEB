@@ -10,7 +10,7 @@ on("user.registered", async ({ userId }) => {
 
 // First-touch ad attribution + signup IP (used later by fraud review)
 on("user.registered", async ({ userId, context }) => {
-  await prisma.user.update({ where: { id: userId }, data: { signupIp: context.ip } });
+  await prisma.user.update({ where: { id: userId }, data: { signupIp: context.ip, signupFingerprint: context.fingerprint } });
 
   const a = context.attribution;
   if (!a) return;

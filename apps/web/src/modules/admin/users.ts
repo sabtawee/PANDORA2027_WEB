@@ -15,6 +15,7 @@ export async function searchUsers(q: string, page: number) {
           { referralCode: term.toUpperCase() },
           { id: term },
           { signupIp: term },
+          { signupFingerprint: term.toLowerCase() },
         ],
       }
     : {};
@@ -70,13 +71,16 @@ export async function getUserDetail(id: string) {
   });
   if (!user) return null;
 
-  const [ledger, sums, sameIp] = await Promise.all([
+  const [ledger, sums, sameIp, sameDevice] = await Promise.all([
     prisma.pointLedger.findMany({ where: { userId: id }, orderBy: { createdAt: "desc" }, take: 100 }),
     prisma.pointLedger.aggregate({ where: { userId: id }, _sum: { amount: true } }),
     user.signupIp
       ? prisma.user.count({ where: { signupIp: user.signupIp, id: { not: id } } })
       : Promise.resolve(0),
+    user.signupFingerprint
+      ? prisma.user.count({ where: { signupFingerprint: user.signupFingerprint, id: { not: id } } })
+      : Promise.resolve(0),
   ]);
 
-  return { user, ledger, balance: sums._sum.amount ?? 0, sameIp };
+  return { user, ledger, balance: sums._sum.amount ?? 0, sameIp, sameDevice };
 }

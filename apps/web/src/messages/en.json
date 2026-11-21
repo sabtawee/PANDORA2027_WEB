@@ -47,7 +47,11 @@
     "subtitle": "One click, no password needed",
     "google": "Continue with Google",
     "discord": "Continue with Discord",
-    "terms": "By continuing you agree to our Terms of Service and Privacy Policy."
+    "terms": "By continuing you agree to our Terms of Service and Privacy Policy.",
+    "errorCaptcha": "Bot check failed — please try again",
+    "errorRate": "Too many attempts. Please wait a moment and try again",
+    "errorDenied": "Sign-in was refused. This account may be suspended, or too many accounts were created from this network. Contact us on Discord",
+    "errorGeneric": "Sign-in failed — please try again"
   },
   "dashboard": {
     "title": "My Box",

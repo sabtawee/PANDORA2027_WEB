@@ -1,2 +1,2 @@
 -- AlterTable
-ALTER TABLE `referral` ADD COLUMN `flagged` BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE `Referral` ADD COLUMN `flagged` BOOLEAN NOT NULL DEFAULT false;
