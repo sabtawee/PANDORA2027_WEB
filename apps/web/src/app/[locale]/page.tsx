@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/core/i18n/navigation";
 import type { Locale } from "@/core/i18n/routing";
@@ -64,8 +65,17 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
           <div className="text-center md:text-left">
             <p className="text-xs tracking-[0.25em] text-arcane-bright uppercase sm:text-sm">{t("eyebrow")}</p>
             <h1 className="mt-4 font-display text-4xl leading-tight text-gilded sm:text-6xl">
-              PANDORA-RO
-              <span className="mt-2 block text-2xl text-text sm:text-4xl">{t("title")}</span>
+              <span className="sr-only">PANDORA-RO</span>
+              <Image
+                src="/brand/logo.png"
+                alt="PANDORA Classic RO — Pre-Renewal 1.0-4.0"
+                width={1200}
+                height={605}
+                preload
+                sizes="(min-width: 768px) 520px, 90vw"
+                className="mx-auto w-full max-w-[520px] drop-shadow-[0_0_30px_rgba(80,140,255,0.35)] md:mx-0"
+              />
+              <span className="mt-4 block text-2xl text-text sm:text-4xl">{t("title")}</span>
             </h1>
             <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted md:mx-0 sm:text-lg">{t("subtitle")}</p>
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row md:justify-start">
