@@ -54,6 +54,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   // already signed in; Auth.js attaches the new Account to the current user.
   pages: { signIn: "/th/login" },
   callbacks: {
+    // Banned players can't sign in (admin ban also deletes their sessions).
+    async signIn({ account }) {
+      if (!account) return true;
+      const existing = await prisma.account.findUnique({
+        where: { provider_providerAccountId: { provider: account.provider, providerAccountId: account.providerAccountId } },
+        select: { user: { select: { status: true } } },
+      });
+      return existing?.user.status !== "BANNED";
+    },
     async session({ session, user }) {
       const u = user as AdapterUser & { role: Role; referralCode: string };
       session.user.id = u.id;

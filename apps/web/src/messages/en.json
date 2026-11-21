@@ -130,5 +130,16 @@
     "friends": "{count, number} {count, plural, one {friend} other {friends}}",
     "empty": "No one on the board yet — be the first",
     "cta": "Get my invite link"
+  },
+  "news": {
+    "title": "News",
+    "subtitle": "News, patch notes, guides and events from PANDORA-RO",
+    "all": "All",
+    "empty": "No posts in this category yet",
+    "readMore": "Read more",
+    "back": "← All news",
+    "prev": "← Newer",
+    "next": "Older →",
+    "cta": "Pre-register for free rewards"
   }
 }
