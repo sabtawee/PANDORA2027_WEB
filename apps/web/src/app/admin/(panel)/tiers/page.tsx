@@ -3,11 +3,12 @@ import { requireAdmin } from "@/core/admin/session";
 import { formatItemLines } from "@/modules/rewards/items";
 import { TIER_COLORS } from "@/modules/rewards/tiers";
 import { Card, Field, Flash, inputCls, PageTitle, SaveButton } from "../ui";
+import { ImageField } from "../ImageField";
 import { deleteTier, saveTier } from "./actions";
 
 type Localized = Record<string, string>;
 
-function TierForm({ t }: { t?: { id: string; key: string; title: Localized; minPoints: number; items: unknown; isActive: boolean } }) {
+function TierForm({ t }: { t?: { id: string; key: string; title: Localized; minPoints: number; items: unknown; isActive: boolean; image: string | null } }) {
   return (
     <form action={saveTier} className="space-y-4">
       {t && <input type="hidden" name="id" value={t.id} />}
@@ -25,6 +26,7 @@ function TierForm({ t }: { t?: { id: string; key: string; title: Localized; minP
           <input type="number" name="minPoints" required min={0} defaultValue={t?.minPoints} className={inputCls} />
         </Field>
       </div>
+      <ImageField current={t?.image} label="รูปตรา / ของรางวัลของ tier" />
       <Field label="ไอเทมรางวัล" hint="บรรทัดละ 1 ชิ้น รูปแบบ itemId:จำนวน — ได้ทุก tier ที่ถึง (ไม่ใช่เฉพาะ tier สูงสุด)">
         <textarea name="items" rows={3} defaultValue={formatItemLines(t?.items)} className={`${inputCls} font-mono`} />
       </Field>
@@ -41,12 +43,15 @@ function TierForm({ t }: { t?: { id: string; key: string; title: Localized; minP
 
 export default async function TiersPage({ searchParams }: PageProps<"/admin/tiers">) {
   await requireAdmin("ADMIN");
-  const [{ ok }, tiers] = await Promise.all([searchParams, prisma.rewardTier.findMany({ orderBy: { minPoints: "asc" } })]);
+  const [{ ok, error }, tiers] = await Promise.all([searchParams, prisma.rewardTier.findMany({ orderBy: { minPoints: "asc" } })]);
 
   return (
     <>
       <PageTitle sub="ระดับคำนวณจากแต้มที่เคยได้ทั้งหมด (ใช้แต้มแล้วระดับไม่ลด)">Reward Tiers</PageTitle>
       <Flash ok={ok} />
+      {typeof error === "string" && error && (
+        <p className="mb-4 rounded-md border border-ember/50 bg-ember/10 px-3 py-2 text-sm text-ember">อัปโหลดรูปไม่สำเร็จ: {error}</p>
+      )}
       <div className="space-y-6">
         {tiers.map((t) => (
           <Card
@@ -65,7 +70,7 @@ export default async function TiersPage({ searchParams }: PageProps<"/admin/tier
               </span>
             }
           >
-            <TierForm t={{ id: t.id, key: t.key, title: t.title as Localized, minPoints: t.minPoints, items: t.items, isActive: t.isActive }} />
+            <TierForm t={{ id: t.id, key: t.key, title: t.title as Localized, minPoints: t.minPoints, items: t.items, isActive: t.isActive, image: t.image }} />
           </Card>
         ))}
         <Card title="เพิ่ม tier ใหม่">

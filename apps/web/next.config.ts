@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   // cacheComponents is off for now: Auth.js v5 and next-intl don't support it yet.
   // Revisit once both libraries document Cache Components support.
   transpilePackages: ["@pandora/shared"],
+  experimental: {
+    // Admin image uploads (max 2 MB each, see core/media/storage.ts) + form overhead
+    serverActions: { bodySizeLimit: "3mb" },
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "lh3.googleusercontent.com" },

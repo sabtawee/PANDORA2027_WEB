@@ -5,6 +5,8 @@ export interface MilestoneView {
   id: string;
   target: number;
   title: unknown;
+  description: unknown;
+  image: string | null;
   unlocked: boolean;
 }
 
@@ -26,6 +28,8 @@ export async function getPreregisterStats(): Promise<PreregisterStats> {
         id: m.id,
         target: m.target,
         title: m.title,
+        description: m.description,
+        image: m.image,
         unlocked: registered >= m.target,
       })),
     };

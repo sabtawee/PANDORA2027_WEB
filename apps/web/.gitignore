@@ -42,3 +42,6 @@ next-env.d.ts
 
 /src/generated/
 !.env.example
+
+# admin-uploaded images (see core/media/storage.ts)
+/uploads/

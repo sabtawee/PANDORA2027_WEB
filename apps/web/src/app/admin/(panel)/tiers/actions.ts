@@ -6,6 +6,7 @@ import { z } from "zod";
 import { audit } from "@/core/audit";
 import { prisma } from "@/core/db/prisma";
 import { requireAdmin } from "@/core/admin/session";
+import { deleteImage, imageFromForm } from "@/core/media/storage";
 import { parseItemLines } from "@/modules/rewards/items";
 
 const schema = z.object({
@@ -30,6 +31,8 @@ export async function saveTier(formData: FormData) {
     items: s("items"),
     isActive: formData.get("isActive") === "on",
   });
+  const img = await imageFromForm(formData, "tiers");
+  if (img.error) redirect(`/admin/tiers?error=${encodeURIComponent(img.error)}`);
   const data = {
     key: t.key,
     title: { th: t.titleTh, en: t.titleEn },
@@ -37,9 +40,11 @@ export async function saveTier(formData: FormData) {
     items: t.items,
     sortOrder: t.minPoints,
     isActive: t.isActive,
+    ...(img.image !== undefined ? { image: img.image } : {}),
   };
   const before = t.id ? await prisma.rewardTier.findUnique({ where: { id: t.id } }) : null;
   const saved = t.id ? await prisma.rewardTier.update({ where: { id: t.id }, data }) : await prisma.rewardTier.create({ data });
+  if (img.image !== undefined && before?.image && before.image !== saved.image) await deleteImage(before.image);
   await audit({ adminId: user.id, op: t.id ? "UPDATE" : "CREATE", action: t.id ? "tier.update" : "tier.create", target: saved.key, before, after: saved });
 
   revalidatePath("/", "layout");
@@ -50,6 +55,7 @@ export async function deleteTier(formData: FormData) {
   const user = await requireAdmin("ADMIN");
   const id = z.string().min(1).parse(formData.get("id"));
   const before = await prisma.rewardTier.delete({ where: { id } });
+  await deleteImage(before.image);
   await audit({ adminId: user.id, op: "DELETE", action: "tier.delete", target: before.key, before });
 
   revalidatePath("/", "layout");

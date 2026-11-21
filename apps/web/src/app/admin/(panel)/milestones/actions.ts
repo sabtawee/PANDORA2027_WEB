@@ -6,6 +6,7 @@ import { z } from "zod";
 import { audit } from "@/core/audit";
 import { prisma } from "@/core/db/prisma";
 import { requireAdmin } from "@/core/admin/session";
+import { deleteImage, imageFromForm } from "@/core/media/storage";
 import { parseItemLines } from "@/modules/rewards/items";
 
 const items = z.string().transform(parseItemLines);
@@ -41,6 +42,8 @@ export async function saveMilestone(formData: FormData) {
   const user = await requireAdmin("ADMIN");
   const m = parse(formData);
   const before = m.id ? await prisma.milestone.findUnique({ where: { id: m.id } }) : null;
+  const img = await imageFromForm(formData, "milestones");
+  if (img.error) redirect(`/admin/milestones?error=${encodeURIComponent(img.error)}`);
   const data = {
     target: m.target,
     title: { th: m.titleTh, en: m.titleEn },
@@ -48,10 +51,12 @@ export async function saveMilestone(formData: FormData) {
     items: m.items,
     sortOrder: m.sortOrder,
     isActive: m.isActive,
+    ...(img.image !== undefined ? { image: img.image } : {}),
   };
   const saved = m.id
     ? await prisma.milestone.update({ where: { id: m.id }, data })
     : await prisma.milestone.create({ data });
+  if (img.image !== undefined && before?.image && before.image !== saved.image) await deleteImage(before.image);
   await audit({ adminId: user.id, op: m.id ? "UPDATE" : "CREATE", action: m.id ? "milestone.update" : "milestone.create", target: saved.id, before, after: saved });
 
   revalidatePath("/", "layout");
@@ -62,6 +67,7 @@ export async function deleteMilestone(formData: FormData) {
   const user = await requireAdmin("ADMIN");
   const id = z.string().min(1).parse(formData.get("id"));
   const before = await prisma.milestone.delete({ where: { id } });
+  await deleteImage(before.image);
   await audit({ adminId: user.id, op: "DELETE", action: "milestone.delete", target: id, before });
 
   revalidatePath("/", "layout");

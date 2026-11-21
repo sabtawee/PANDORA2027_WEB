@@ -35,7 +35,11 @@
     "subtitle": "Every goal reached breaks a chain, and every player gets that tier's reward.",
     "target": "{count, number} players",
     "unlocked": "Unlocked",
-    "locked": "Locked"
+    "locked": "Locked",
+    "registered": "{count, number} players registered",
+    "toNext": "{count, number} more to unlock the next reward",
+    "allUnlocked": "Every reward unlocked ✦",
+    "next": "Next · {percent}%"
   },
   "quests": {
     "title": "Pre-register quests",

@@ -9,6 +9,7 @@ import { JsonLd } from "@/core/seo/JsonLd";
 import { getSetting } from "@/core/settings";
 import { Countdown } from "@/core/ui/Countdown";
 import { Embers } from "@/core/ui/Embers";
+import { MilestoneTimeline } from "@/core/ui/MilestoneTimeline";
 import { PandoraBox } from "@/core/ui/PandoraBox";
 import { getActiveQuests, getPreregisterStats } from "@/modules/preregister/service";
 
@@ -36,9 +37,6 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
   ]);
 
   const broken = stats.milestones.filter((m) => m.unlocked).length;
-  const next = stats.milestones.find((m) => !m.unlocked);
-  const prevTarget = stats.milestones.filter((m) => m.unlocked).at(-1)?.target ?? 0;
-  const progress = next ? Math.min(100, ((stats.registered - prevTarget) / (next.target - prevTarget)) * 100) : 100;
 
   return (
     <>
@@ -105,35 +103,9 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
           <h2 className="text-center font-display text-3xl text-gilded">{tm("title")}</h2>
           <p className="mx-auto mt-3 max-w-2xl text-center text-muted">{tm("subtitle")}</p>
 
-          {next && (
-            <div className="mx-auto mt-8 max-w-2xl">
-              <div className="h-3 overflow-hidden rounded-full border border-line bg-bg-sunken">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-arcane to-gold"
-                  style={{ width: `${Math.max(progress, 2)}%` }}
-                />
-              </div>
-              <p className="mt-2 text-right text-xs text-faint">
-                {stats.registered.toLocaleString()} / {next.target.toLocaleString()}
-              </p>
-            </div>
-          )}
-
-          <ol className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            {stats.milestones.map((m, i) => (
-              <li
-                key={m.id}
-                className={`panel p-4 text-center ${m.unlocked ? "border-gold/60" : "opacity-80"}`}
-              >
-                <p className="text-xs text-faint">#{i + 1}</p>
-                <p className="mt-1 font-display text-xl text-gilded">{tm("target", { count: m.target })}</p>
-                <p className="mt-2 text-sm text-text">{pickLocale(m.title, locale)}</p>
-                <p className={`mt-3 text-xs ${m.unlocked ? "text-success" : "text-faint"}`}>
-                  {m.unlocked ? tm("unlocked") : tm("locked")}
-                </p>
-              </li>
-            ))}
-          </ol>
+          <div className="mt-10">
+            <MilestoneTimeline registered={stats.registered} milestones={stats.milestones} locale={locale} />
+          </div>
         </section>
       )}
 

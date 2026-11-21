@@ -1,6 +1,7 @@
 import { prisma } from "@/core/db/prisma";
 import { requireAdmin } from "@/core/admin/session";
 import { Card, Field, Flash, inputCls, PageTitle, SaveButton } from "../ui";
+import { ImageField } from "../ImageField";
 import { deleteMilestone, saveMilestone } from "./actions";
 
 type Localized = Record<string, string>;
@@ -15,6 +16,7 @@ interface MilestoneFormProps {
     items: Item[];
     sortOrder: number;
     isActive: boolean;
+    image: string | null;
   };
 }
 
@@ -42,6 +44,7 @@ function MilestoneForm({ m }: MilestoneFormProps) {
           <input type="number" name="sortOrder" min={0} defaultValue={m?.sortOrder ?? 0} className={inputCls} />
         </Field>
       </div>
+      <ImageField current={m?.image} label="รูปของรางวัล (แสดงบน timeline หน้าแรก)" />
       <Field label="ไอเทมรางวัล" hint="บรรทัดละ 1 ชิ้น รูปแบบ itemId:จำนวน เช่น 501:10 (ไอเทม ID จาก item_db ของ rAthena)">
         <textarea
           name="items"
@@ -63,7 +66,7 @@ function MilestoneForm({ m }: MilestoneFormProps) {
 
 export default async function MilestonesPage({ searchParams }: PageProps<"/admin/milestones">) {
   await requireAdmin("ADMIN");
-  const [{ ok }, milestones, registered] = await Promise.all([
+  const [{ ok, error }, milestones, registered] = await Promise.all([
     searchParams,
     prisma.milestone.findMany({ orderBy: { target: "asc" } }),
     prisma.user.count({ where: { status: "ACTIVE" } }),
@@ -75,6 +78,9 @@ export default async function MilestonesPage({ searchParams }: PageProps<"/admin
         Milestones (โซ่แพนโดร่า)
       </PageTitle>
       <Flash ok={ok} />
+      {typeof error === "string" && error && (
+        <p className="mb-4 rounded-md border border-ember/50 bg-ember/10 px-3 py-2 text-sm text-ember">อัปโหลดรูปไม่สำเร็จ: {error}</p>
+      )}
 
       <div className="space-y-6">
         {milestones.map((m) => (
@@ -104,6 +110,7 @@ export default async function MilestonesPage({ searchParams }: PageProps<"/admin
                 items: (m.items ?? []) as Item[],
                 sortOrder: m.sortOrder,
                 isActive: m.isActive,
+                image: m.image,
               }}
             />
           </Card>
