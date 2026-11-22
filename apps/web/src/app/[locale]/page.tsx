@@ -67,7 +67,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
             keep the text side dark enough to read and leave the characters visible. */}
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[75svh] md:inset-0 md:h-auto">
           <Image
-            src="/brand/hero.webp"
+            src="/brand/hero.png"
             alt=""
             fill
             preload
