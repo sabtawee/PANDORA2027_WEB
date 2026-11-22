@@ -4,7 +4,7 @@ import { prisma } from "@/core/db/prisma";
 /** Defaults used when a key isn't in the DB yet (or the DB is unreachable at build). */
 export const SETTING_DEFAULTS = {
   "site.launch": { cbtAt: null as string | null, obtAt: null as string | null },
-  "site.links": { discord: "", facebook: "", tiktok: "", youtube: "" },
+  "site.links": { discord: "", facebook: "https://www.facebook.com/profile.php?id=61596098113174", tiktok: "", youtube: "" },
   "site.maintenance": false,
   /** Public pixel / measurement IDs (not secrets). The CAPI token lives in env. */
   tracking: { metaPixelId: "", ga4Id: "", tiktokPixelId: "" },

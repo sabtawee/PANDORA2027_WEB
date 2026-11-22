@@ -20,8 +20,8 @@ function Board({ rows, empty, unit }: { rows: LeaderRow[]; empty: string; unit: 
   if (rows.length === 0) return <p className="py-8 text-center text-sm text-faint">{empty}</p>;
   return (
     <ol className="divide-y divide-line">
-      {rows.map((r) => (
-        <li key={r.userId} className="flex items-center gap-4 py-3">
+      {rows.map((r, i) => (
+        <li key={r.userId} data-reveal style={{ "--reveal-delay": `${Math.min(i, 10) * 60}ms` } as React.CSSProperties} className="flex items-center gap-4 py-3">
           <span
             className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-sm font-semibold tabular-nums"
             style={r.rank <= 3 ? { background: MEDAL[r.rank - 1], color: "#1a1206" } : { border: "1px solid var(--line-strong)" }}
@@ -51,7 +51,7 @@ export default async function LeaderboardPage({ params }: PageProps<"/[locale]/l
 
   return (
     <section className="mx-auto max-w-4xl px-4 py-12">
-      <h1 className="text-center font-display text-3xl text-gilded sm:text-4xl">{t("title")}</h1>
+      <h1 data-reveal className="text-center font-display text-3xl text-gilded sm:text-4xl">{t("title")}</h1>
       <p className="mx-auto mt-3 max-w-xl text-center text-muted">{t("subtitle")}</p>
       {prize && (
         <p className="mx-auto mt-5 max-w-xl rounded-lg border border-gold/40 bg-gold/5 px-4 py-3 text-center text-sm text-gold-bright">

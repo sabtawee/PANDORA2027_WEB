@@ -158,6 +158,17 @@ export default async function DashboardPage({ params }: PageProps<"/[locale]/das
         <h2 className="font-medium">{t("referralLink")}</h2>
         <p className="mt-1 mb-4 text-sm text-muted">{ts("hint")}</p>
         <ShareButtons url={inviteUrl} text={ts("message")} />
+        {links.facebook && (
+          <a
+            href={links.facebook}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-white"
+            style={{ background: "#1877F2" }}
+          >
+            {ts("followPage")}
+          </a>
+        )}
       </div>
 
       {/* ───── Point history ───── */}

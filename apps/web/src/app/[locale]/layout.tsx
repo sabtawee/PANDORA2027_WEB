@@ -7,6 +7,7 @@ import { routing } from "@/core/i18n/routing";
 import { buildMetadata, SITE_URL } from "@/core/seo";
 import { SiteHeader } from "@/core/ui/SiteHeader";
 import { SiteFooter } from "@/core/ui/SiteFooter";
+import { RevealObserver } from "@/core/motion/RevealObserver";
 import { getSetting } from "@/core/settings";
 import { ConsentBanner } from "@/modules/tracking/ConsentBanner";
 import { Trackers } from "@/modules/tracking/Trackers";
@@ -57,6 +58,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
           <SiteHeader />
           <main className="flex-1">{children}</main>
           <SiteFooter />
+          <RevealObserver />
           <ConsentBanner />
           <Trackers ids={trackingIds} />
         </NextIntlClientProvider>

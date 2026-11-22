@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { pickLocale } from "@/core/i18n/localized";
 import type { Locale } from "@/core/i18n/routing";
 import type { MilestoneView } from "@/modules/preregister/service";
+import { CountUp } from "@/core/motion/CountUp";
 
 /**
  * Where the progress line ends, in "node units": 0 = first node, n-1 = last.
@@ -31,8 +32,8 @@ export async function MilestoneTimeline({ registered, milestones, locale }: { re
 
   return (
     <div>
-      <div className="text-center">
-        <p className="font-display text-2xl text-gilded sm:text-3xl">{t("registered", { count: registered })}</p>
+      <div className="text-center" data-reveal>
+        <p className="font-display text-2xl text-gilded sm:text-3xl">{t.rich("registered", { n: () => <CountUp value={registered} locale={locale} /> })}</p>
         <p className="mt-1 text-sm text-muted">{next ? t("toNext", { count: next.target - registered }) : t("allUnlocked")}</p>
       </div>
 
@@ -42,6 +43,7 @@ export async function MilestoneTimeline({ registered, milestones, locale }: { re
           <li aria-hidden className="pointer-events-none absolute top-[46px] h-1 rounded-full bg-line-strong" style={{ left: `${inset}%`, right: `${inset}%` }} />
           <li
             aria-hidden
+            data-reveal="line"
             className="pointer-events-none absolute top-[46px] h-1 rounded-full bg-gradient-to-r from-arcane to-gold shadow-[0_0_12px_rgba(241,207,122,0.5)]"
             style={{ left: `${inset}%`, width: `${fill}%` }}
           />
@@ -51,11 +53,11 @@ export async function MilestoneTimeline({ registered, milestones, locale }: { re
             const title = pickLocale(m.title, locale);
             const desc = pickLocale(m.description, locale);
             return (
-              <li key={m.id} className={`relative flex flex-col items-center px-2 text-center ${state === "locked" ? "opacity-60" : ""}`}>
+              <li key={m.id} data-reveal style={{ "--reveal-delay": `${i * 120}ms` } as React.CSSProperties} className={`relative flex flex-col items-center px-2 text-center ${state === "locked" ? "opacity-60" : ""}`}>
                 <div
-                  className={`relative grid h-24 w-24 place-items-center overflow-hidden rounded-2xl bg-bg-raised ${
+                  className={`lift relative grid h-24 w-24 place-items-center overflow-hidden rounded-2xl bg-bg-raised ${
                     state === "unlocked"
-                      ? "border-2 border-gold shadow-[0_0_24px_rgba(241,207,122,0.35)]"
+                      ? "glow-pulse border-2 border-gold shadow-[0_0_24px_rgba(241,207,122,0.35)]"
                       : state === "next"
                         ? "border-2 border-dashed border-gold/70"
                         : "border border-line-strong"

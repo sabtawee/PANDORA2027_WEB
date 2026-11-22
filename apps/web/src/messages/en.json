@@ -25,7 +25,8 @@
     "subtitle": "Pre-register today. The more players join, the more chains break — and the more rewards everyone gets.",
     "cta": "Pre-register now",
     "ctaSignedIn": "Go to my box",
-    "registered": "{count, number} players registered"
+    "registered": "{count, number} players registered",
+    "finaleTitle": "Help break the seal"
   },
   "countdown": {
     "title": "Open beta starts in",
@@ -41,7 +42,7 @@
     "target": "{count, number} players",
     "unlocked": "Unlocked",
     "locked": "Locked",
-    "registered": "{count, number} players registered",
+    "registered": "<n></n> players registered",
     "toNext": "{count, number} more to unlock the next reward",
     "allUnlocked": "Every reward unlocked ✦",
     "next": "Next · {percent}%"
@@ -80,7 +81,8 @@
   },
   "footer": {
     "disclaimer": "PANDORA-RO is an independent server and is not affiliated with Gravity Co., Ltd.",
-    "rights": "© {year} PANDORA-RO"
+    "rights": "© {year} PANDORA-RO",
+    "follow": "Follow us"
   },
   "notFound": {
     "title": "Page not found",
@@ -93,7 +95,8 @@
     "copied": "Copied ✓",
     "copyPrompt": "Copy this link",
     "linkLabel": "Invite link",
-    "more": "More"
+    "more": "More",
+    "followPage": "Follow our Facebook page for the latest news"
   },
   "discord": {
     "join": "Join Discord",
@@ -180,5 +183,34 @@
     "linked": "Linked",
     "link": "Link {provider}",
     "referral": "Invite link"
+  },
+  "classes": {
+    "title": "Choose your path",
+    "subtitle": "Six starting classes, each branching into the path that fits you",
+    "placeholderNote": "Placeholder artwork",
+    "swordman": {
+      "name": "Swordman",
+      "desc": "Sturdy front line that takes hits for the team"
+    },
+    "mage": {
+      "name": "Mage",
+      "desc": "Elemental spells and area damage from afar"
+    },
+    "archer": {
+      "name": "Archer",
+      "desc": "Precise, agile ranged attacks"
+    },
+    "acolyte": {
+      "name": "Acolyte",
+      "desc": "Heals and buffs, the heart of any party"
+    },
+    "thief": {
+      "name": "Thief",
+      "desc": "Fast, evasive, relentless strikes"
+    },
+    "merchant": {
+      "name": "Merchant",
+      "desc": "Trading, crafting and making money"
+    }
   }
 }

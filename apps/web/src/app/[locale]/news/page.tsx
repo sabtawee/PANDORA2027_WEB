@@ -45,7 +45,7 @@ export default async function NewsListPage({ params, searchParams }: PageProps<"
 
   return (
     <section className="mx-auto max-w-5xl px-4 py-12">
-      <h1 className="text-center font-display text-3xl text-gilded sm:text-4xl">{t("title")}</h1>
+      <h1 data-reveal className="text-center font-display text-3xl text-gilded sm:text-4xl">{t("title")}</h1>
       <p className="mx-auto mt-3 max-w-xl text-center text-muted">{t("subtitle")}</p>
 
       <nav className="mt-8 flex flex-wrap justify-center gap-2 text-sm">
@@ -64,8 +64,9 @@ export default async function NewsListPage({ params, searchParams }: PageProps<"
         <p className="py-16 text-center text-faint">{t("empty")}</p>
       ) : (
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {posts.map((p) => (
-            <Link key={p.id} href={`/news/${p.slug}`} className="panel group flex flex-col overflow-hidden transition hover:border-gold/60">
+          {posts.map((p, i) => (
+            <div key={p.id} data-reveal className="flex" style={{ "--reveal-delay": `${(i % 3) * 110}ms` } as React.CSSProperties}>
+            <Link href={`/news/${p.slug}`} className="panel lift group flex w-full flex-col overflow-hidden">
               {p.coverImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={p.coverImage} alt="" loading="lazy" className="aspect-[1200/630] w-full object-cover" />
@@ -87,6 +88,7 @@ export default async function NewsListPage({ params, searchParams }: PageProps<"
                 {pickLocale(p.excerpt, locale) && <p className="mt-2 line-clamp-3 text-sm text-muted">{pickLocale(p.excerpt, locale)}</p>}
               </div>
             </Link>
+            </div>
           ))}
         </div>
       )}
